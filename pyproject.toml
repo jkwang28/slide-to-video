@@ -28,6 +28,9 @@ dev-dependencies = [
     "pyinstrument>=4.6.2",
     "pyright>=1.1.366",
     "pytest>=8.3.3",
+    "coverage>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
 ]
 
 [tool.hatch.metadata]
