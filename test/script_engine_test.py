@@ -1,5 +1,10 @@
 import pytest
-from src.slide_to_video.script_engine import ScriptEngine, Script, ScriptConfig, extract_text_from_docx
+from src.slide_to_video.script_engine import (
+    ScriptEngine,
+    Script,
+    ScriptConfig,
+    extract_text_from_docx,
+)
 
 
 @pytest.fixture

@@ -331,7 +331,7 @@ class Project:
         if not all(cached_script_list) or not all(cached_slide_list):
             video_engine = VideoEngine()
             video_paths = [
-                f"{self.output_dir}/sub_paragraph_{i+1}.mp4"
+                f"{self.output_dir}/sub_paragraph_{i + 1}.mp4"
                 for i in range(len(self.slide_items))
             ]
             final_output = f"{self.output_dir}/output.mp4"

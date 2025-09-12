@@ -11,7 +11,7 @@ class SlideEngine(object):
         pdf_document = fitz.open(pdf_path)
 
         pages = list(range(len(pdf_document)))
-        image_paths = [f"{output_dir}/slide_{page_num+1}.png" for page_num in pages]
+        image_paths = [f"{output_dir}/slide_{page_num + 1}.png" for page_num in pages]
         dpis = [dpi] * len(pages)
         pdf_documents = [pdf_document] * len(pages)
         par_execute(self.extract_one_page, pdf_documents, pages, image_paths, dpis)

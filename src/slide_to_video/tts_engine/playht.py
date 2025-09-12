@@ -5,18 +5,66 @@ from .registery import register_engine
 
 
 class PlayHTEngine(TTSEngine):
-    # TODO: Check whether the audio is correctly genereated.
-    def __init__(self, config: dict):
-        super().__init__(**config)
-        must_have_keys = ["PLAY_HT_USER_ID", "PLAY_HT_API_KEY", "voice"]
-        for key in must_have_keys:
-            if key not in config:
-                raise ValueError(f"Missing required key: {key}")
-        self.user_id = config.get("PLAY_HT_USER_ID")
-        self.api_key = config.get("PLAY_HT_API_KEY")
-        self.voice = config.get("voice")
+    """
+    Play.ht TTS engine for cloud-based text-to-speech synthesis.
 
-    def parallizable(self):
+    This engine uses the Play.ht API for high-quality voice synthesis
+    with support for custom voices and multiple languages.
+    """
+
+    # Engine metadata
+    ENGINE_NAME = "Play.ht TTS"
+    ENGINE_DESCRIPTION = (
+        "Cloud-based text-to-speech using Play.ht API with custom voices"
+    )
+    REQUIRED_CONFIG_KEYS = {"PLAY_HT_USER_ID", "PLAY_HT_API_KEY", "voice"}
+    OPTIONAL_CONFIG_KEYS = {"quality", "voice_engine", "sample_rate"}
+    SUPPORTED_LANGUAGES = {
+        "en",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt",
+        "pl",
+        "tr",
+        "ru",
+        "nl",
+        "cs",
+        "ar",
+        "zh-cn",
+        "hu",
+        "ko",
+        "ja",
+        "hi",
+    }
+    SUPPORTED_FORMATS = {"wav", "mp3"}
+
+    def __init__(self, config: dict):
+        """
+        Initialize the Play.ht TTS engine.
+
+        Args:
+            config: Configuration dictionary containing:
+                - PLAY_HT_USER_ID: Play.ht user ID
+                - PLAY_HT_API_KEY: Play.ht API key
+                - voice: Voice ID or name to use
+                - quality: Audio quality (optional, default: "medium")
+                - voice_engine: Voice engine to use (optional, default: "PlayHT2.0")
+                - sample_rate: Audio sample rate (optional, default: 44100)
+        """
+        super().__init__(**config)
+        self.validate_config(config)
+
+        self.user_id = config["PLAY_HT_USER_ID"]
+        self.api_key = config["PLAY_HT_API_KEY"]
+        self.voice = config["voice"]
+        self.quality = config.get("quality", "medium")
+        self.voice_engine = config.get("voice_engine", "PlayHT2.0")
+        self.sample_rate = config.get("sample_rate", 44100)
+
+    def parallizable(self) -> bool:
+        """Play.ht supports parallel processing since it's a cloud API."""
         return True
 
     def generate_audio_job(self, text, voice, headers):
@@ -32,9 +80,9 @@ class PlayHTEngine(TTSEngine):
         payload = {
             "text": text,
             "voice": voice,
-            "voice_engine": "PlayHT2.0",
-            "quality": "medium",
-            "sample_rate": 44100,
+            "voice_engine": self.voice_engine,
+            "quality": self.quality,
+            "sample_rate": self.sample_rate,
             "output_format": "wav",
             "speed": self.speed,
         }
@@ -102,6 +150,9 @@ class PlayHTEngine(TTSEngine):
         self.download_file(final_url, local_filename)
 
     def synthesize(self, text: str, output_path: str, format: str = "wav"):
+        """Synthesize text to speech using Play.ht API."""
+        # Call parent to validate format
+        super().synthesize(text, output_path, format)
         self.playht_tts(text, output_path)
 
 

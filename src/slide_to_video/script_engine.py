@@ -67,7 +67,7 @@ class ScriptEngine:
             if sub_paragraph.strip():
                 original_text, script_config = self.parse_script(sub_paragraph)
                 replaced_text = original_text
-                output_file = f"{output_path}/sub_paragraph_{len(script_paths)+1}.txt"
+                output_file = f"{output_path}/sub_paragraph_{len(script_paths) + 1}.txt"
                 if script_dict:
                     replaced_text = self.replace_dict(original_text, script_dict)
                 with open(output_file, "w") as f:
