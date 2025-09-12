@@ -12,7 +12,7 @@ Tested on Ubuntu 20.04.
 2. **Install Python (>=3.9 and <=3.11) and `pip`** if you haven't already.
 3. **Clone and Install this Tool**:
     ```bash
-    git clone git@github.com:Changochen/slide-to-video.git
+    git clone git@github.com:llm-believer/slide-to-video.git
     cd slide-to-video
     pip install .
     ```
