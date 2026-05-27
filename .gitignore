@@ -1,25 +1,52 @@
-# python generated files
+# Python
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
 build/
 dist/
 wheels/
-*.egg-info
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
 
-# venv
-.venv
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*.key
+config.yaml
+config.local.yaml
+config2.yaml
+
+# User inputs and generated outputs
+input/
 output/
-*.lock
-output.mp4
+output*/
+*.mp4
+*.wav
+*.mp3
+
+# Local scratch files
 small
 gogo.py
+test.py
 testplayht.py
+replace_dict
 src/slide_to_video/mytest.py
 example/E2_script.docx
 example/E2.pdf
-replace_dict
-test.py
-.env
-config.yaml
-config2.yaml
-env
