@@ -4,16 +4,29 @@ version = "0.1.0"
 description = "Generate video from slide and script."
 dependencies = [
     "pydub>=0.25.1",
-    "coqui-tts>=0.27.0",
-    "ruff>=0.3.7",
     "requests>=2.32.2",
     "pymupdf>=1.24.4",
     "ffmpeg-python>=0.2.0",
     "python-docx>=1.1.2",
     "pyyaml>=6.0.1",
+    "typer>=0.12.3",
+    "click>=8.1.7",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
+
+[project.optional-dependencies]
+local = [
+    "coqui-tts>=0.27.0",
+]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "coverage>=7.0.0",
+    "pyright>=1.1.366",
+    "ruff>=0.3.7",
+]
 
 [project.scripts]
 slide-to-video = 'script:main'

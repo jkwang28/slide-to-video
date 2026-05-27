@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from src.slide_to_video.tts_engine.base_engine import TTSEngine
 from src.slide_to_video.tts_engine.registery import (
     register_engine,

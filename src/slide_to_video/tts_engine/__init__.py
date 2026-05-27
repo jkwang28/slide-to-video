@@ -10,6 +10,8 @@ from .registery import (
 from .base_engine import TTSEngine
 from .playht import PlayHTEngine
 from .local import LocalTTSEngine
+from .mimo import MimoTTSEngine
+from .aliyun import AliyunCosyVoiceEngine, AliyunQwenTTSEngine
 from .testing import TTSEngineTestSuite, run_engine_tests, validate_new_engine
 
 # Auto-discover engines on import
@@ -23,6 +25,9 @@ __all__ = [
     # Built-in engines
     "PlayHTEngine",
     "LocalTTSEngine",
+    "MimoTTSEngine",
+    "AliyunQwenTTSEngine",
+    "AliyunCosyVoiceEngine",
     # Discovery and management
     "get_all_engine_names",
     "get_engine_info",

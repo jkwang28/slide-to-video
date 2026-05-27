@@ -8,11 +8,10 @@ and validation of new engine implementations.
 import os
 import tempfile
 import time
-from typing import Dict, List, Any, Optional, Tuple
-from pathlib import Path
+from typing import Dict, List, Any, Optional
 import logging
 
-from .registery import get_all_engine_names, create_engine, get_engine_info
+from .registery import create_engine, get_engine_info
 
 
 logger = logging.getLogger(__name__)
@@ -111,7 +110,7 @@ class TTSEngineTestSuite:
             info = get_engine_info(self.engine_name)
 
             # Test with valid config
-            engine = create_engine(self.engine_name, self.config)
+            create_engine(self.engine_name, self.config)
 
             # Test with missing required keys
             errors = []
@@ -415,11 +414,11 @@ def print_test_results(results: Dict[str, Any]) -> None:
     print(f"Tests Failed: {summary['failed']}")
 
     if summary["errors"]:
-        print(f"\nErrors:")
+        print("\nErrors:")
         for error in summary["errors"]:
             print(f"  - {error}")
 
-    print(f"\nDetailed Results:")
+    print("\nDetailed Results:")
     for test_name, test_result in results["tests"].items():
         status = "✓ PASS" if test_result["passed"] else "✗ FAIL"
         print(f"  {status} {test_name}")

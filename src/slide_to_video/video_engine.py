@@ -21,10 +21,13 @@ class VideoEngine(object):
         print(f"Generating video from {image_path} with duration {duration}")
         # Load the image and set the duration
         input_image = ffmpeg.input(image_path, loop=1, t=duration, framerate=30)
+        even_sized_video = input_image.filter(
+            "scale", "trunc(iw/2)*2", "trunc(ih/2)*2"
+        )
 
         # Set the output file and parameters
         output = ffmpeg.output(
-            input_image, video_path, vcodec="libx264", pix_fmt="yuv420p"
+            even_sized_video, video_path, vcodec="libx264", pix_fmt="yuv420p"
         )
         run_ffmpeg_command(output)
 

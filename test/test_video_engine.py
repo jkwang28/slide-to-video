@@ -1,7 +1,5 @@
 import pytest
-import os
-import tempfile
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, patch
 from src.slide_to_video.video_engine import VideoEngine, run_ffmpeg_command
 
 
@@ -26,18 +24,23 @@ def test_run_ffmpeg_command(mock_ffmpeg):
 def test_generate_video_from_image(mock_run_ffmpeg, mock_ffmpeg, video_engine):
     # Mock ffmpeg chain
     mock_input = Mock()
+    mock_even_video = Mock()
     mock_output = Mock()
     mock_ffmpeg.input.return_value = mock_input
+    mock_input.filter.return_value = mock_even_video
     mock_ffmpeg.output.return_value = mock_output
 
     video_engine.generate_video_from_image("image.png", "video.mp4", 5.0)
 
     # Verify ffmpeg.input call
     mock_ffmpeg.input.assert_called_once_with("image.png", loop=1, t=5.0, framerate=30)
+    mock_input.filter.assert_called_once_with(
+        "scale", "trunc(iw/2)*2", "trunc(ih/2)*2"
+    )
 
     # Verify ffmpeg.output call
     mock_ffmpeg.output.assert_called_once_with(
-        mock_input, "video.mp4", vcodec="libx264", pix_fmt="yuv420p"
+        mock_even_video, "video.mp4", vcodec="libx264", pix_fmt="yuv420p"
     )
 
     # Verify run_ffmpeg_command call

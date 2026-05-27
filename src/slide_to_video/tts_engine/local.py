@@ -84,7 +84,7 @@ class LocalTTSEngine(TTSEngine):
             from TTS.api import TTS
         except ImportError as e:
             raise RuntimeError(
-                f"Coqui TTS not installed. Install with: pip install coqui-tts"
+                "Coqui TTS not installed. Install with: pip install coqui-tts"
             ) from e
 
         # Get device

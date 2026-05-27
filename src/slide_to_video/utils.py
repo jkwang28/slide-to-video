@@ -2,7 +2,11 @@ import concurrent.futures
 from typing import List
 import hashlib
 import os
-from pydub import AudioSegment
+
+try:
+    from pydub import AudioSegment
+except ImportError:  # pragma: no cover - exercised in environments without deps
+    AudioSegment = None
 
 
 def par_execute(func, *args) -> List[concurrent.futures.Future]:
@@ -32,6 +36,10 @@ def exists(path) -> bool:
 
 
 def get_audio_duration(audio_file):
+    if AudioSegment is None:
+        raise RuntimeError(
+            "pydub is required to read audio duration. Install project dependencies first."
+        )
     audio = AudioSegment.from_wav(audio_file)
     duration_seconds = len(audio) / 1000.0  # pydub calculates duration in milliseconds
     return duration_seconds

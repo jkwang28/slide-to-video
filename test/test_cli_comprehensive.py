@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import Mock, patch
 from typer.testing import CliRunner
 from src.script import app, generate, main
@@ -144,8 +143,6 @@ def test_main_calls_app(mock_app):
 def test_generate_command_context_params():
     """Test that the generate command has correct context handling"""
     # This tests that ctx.params is properly processed
-    from typer.testing import CliRunner
-    from src.script import generate
 
     # Test that the function signature includes ctx parameter
     import inspect
@@ -195,27 +192,6 @@ def test_generate_missing_optional_params(mock_project_config, mock_slide_to_vid
 
 def test_generate_language_choices():
     """Test that language parameter accepts all valid choices"""
-    valid_languages = [
-        "en",
-        "es",
-        "fr",
-        "de",
-        "it",
-        "pt",
-        "pl",
-        "tr",
-        "ru",
-        "nl",
-        "cs",
-        "ar",
-        "zh-cn",
-        "hu",
-        "ko",
-        "ja",
-        "hi",
-    ]
-
-    from src.script import generate
     import inspect
 
     sig = inspect.signature(generate)

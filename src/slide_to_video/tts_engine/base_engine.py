@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Set
+from typing import List, Dict, Any, Set
 import concurrent.futures
 import logging
 
@@ -95,7 +95,11 @@ class TTSEngine(ABC):
         """
         missing_keys = self.REQUIRED_CONFIG_KEYS - set(config.keys())
         if missing_keys:
-            raise ValueError(f"Missing required configuration keys: {missing_keys}")
+            if len(missing_keys) == 1:
+                missing_key = next(iter(missing_keys))
+                raise ValueError(f"Missing required key: {missing_key}")
+            missing_keys_text = ", ".join(sorted(missing_keys))
+            raise ValueError(f"Missing required key(s): {missing_keys_text}")
 
         # Validate language
         language = config.get("language", "en")

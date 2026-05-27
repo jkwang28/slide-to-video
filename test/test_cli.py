@@ -1,7 +1,6 @@
-import pytest
-from unittest.mock import Mock, patch, call
+from unittest.mock import Mock, patch
 from typer.testing import CliRunner
-from src.script import app, generate, main
+from src.script import app, main
 
 
 runner = CliRunner()

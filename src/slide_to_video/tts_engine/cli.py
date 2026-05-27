@@ -13,7 +13,6 @@ Usage:
 import argparse
 import json
 import sys
-from typing import Dict, Any
 
 from .registery import (
     get_all_engine_names,
@@ -82,7 +81,7 @@ def cmd_info(args) -> None:
                 print(f"{key.replace('_', ' ').title()}: {value}")
 
         if args.json:
-            print(f"\nJSON Output:")
+            print("\nJSON Output:")
             print(json.dumps(info, indent=2))
 
     except ValueError as e:

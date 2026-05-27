@@ -1,6 +1,7 @@
 from __future__ import annotations
 import enum
 from multiprocessing import Manager
+import re
 
 from .utils import md5sum_of_file, exists, get_audio_duration
 import yaml
@@ -110,9 +111,11 @@ class Task(object):
         if not self.script.cached:
             if self.lock:
                 self.lock.acquire()
-            self.tts_engine.synthesize(self.script.content, audio_file)
-            if self.lock:
-                self.lock.release()
+            try:
+                self.tts_engine.synthesize(self.script.content, audio_file)
+            finally:
+                if self.lock:
+                    self.lock.release()
         video_engine = VideoEngine()
         if self.id != 1:
             video_engine.add_silence(audio_file, self.delay / 2, direction="start")
@@ -143,14 +146,11 @@ class ProjectConfig(dict):
         return dict(self)
 
     def validate(self):
-        required_fields = [
-            "model",
-            "slide",
-            "script",
-            "output_dir",
-            "speech_speed",
-            "delay",
-        ]
+        required_fields = ["slide", "output_dir"]
+        if not self.get("draft_only"):
+            required_fields.extend(["model", "speech_speed", "delay"])
+            if "script" not in self and "draft_script" not in self:
+                required_fields.append("script")
 
         for field in required_fields:
             if field not in self.keys():
@@ -217,7 +217,7 @@ class Project:
     def calculate_items(self):
         slide_engine = SlideEngine()
         images = slide_engine.slide_to_images(self.slide, self.output_dir)
-        sorted_images = sorted(images)
+        sorted_images = sorted(images, key=self._slide_sort_key)
         self.slide_items = [
             Item(path=image, type=ItemType.SLIDE) for image in sorted_images
         ]
@@ -231,6 +231,12 @@ class Project:
         ]
 
         assert len(self.slide_items) == len(self.script_items)
+
+    def _slide_sort_key(self, path: str):
+        match = re.search(r"slide_(\d+)\.png$", path)
+        if match:
+            return (0, int(match.group(1)))
+        return (1, path)
 
     def load_project_file(self, project_file):
         if exists(project_file):

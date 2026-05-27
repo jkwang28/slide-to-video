@@ -1,73 +1,209 @@
 # slide-to-video
 
-A tool that converts a slide deck into a video, complete with your voice narration. Support multiple languages.
+Convert a PDF/PPTX slide deck into a narrated video. The workflow is designed around an editable per-slide narration script, so you can generate a draft, edit the text, and rebuild the video without changing code.
 
-## Installation
-Tested on Ubuntu 20.04.
+## Features
 
-1. **Install `ffmpeg`**:
-    ```bash
-    sudo apt-get install ffmpeg
-    ```
-2. **Install Python (>=3.9 and <=3.11) and `pip`** if you haven't already.
-3. **Clone and Install this Tool**:
-    ```bash
-    git clone git@github.com:llm-believer/slide-to-video.git
-    cd slide-to-video
-    pip install .
-    ```
-4. **Verify Installation**:
-    ```bash
-    slide-to-video
-    ```
+- PDF slides to images via PyMuPDF.
+- PPT/PPTX support through a same-named PDF, or LibreOffice conversion when no PDF exists.
+- Editable narration scripts split by `NEWSLIDE`.
+- Incremental rebuilds with `project.yaml` caching.
+- TTS engines:
+  - `qwen-tts`: Alibaba Cloud DashScope Qwen-TTS.
+  - `cosyvoice`: Alibaba Cloud DashScope CosyVoice.
+  - `mimo`: Xiaomi MiMo TTS.
+  - `playht`: Play.ht.
+  - `local`: optional Coqui XTTS voice cloning.
+  - `mock`: silent audio for CI and pipeline testing.
 
-## Preparation
-1. **Slide Deck**: Create a slide deck in PDF format.
-2. **Script**: Prepare a script file in plain text format, with slides separated by the marker `NEWSLIDE`.
-3. **Audio File or Model**: Record an audio file of your voice in MP3 format for voice cloning. If you use paid services like Play.ht, you should have a voice model available.
+## Requirements
 
-## Usage
+- Python 3.9 to 3.11 recommended.
+- `ffmpeg` available on `PATH`.
+- Optional: LibreOffice for direct PPT/PPTX conversion when a same-named PDF is not available.
+
+Install system tools:
+
 ```bash
-slide-to-video --model MODEL_NAME --slide slide --script script --output-dir OUTPUT_PATH --config ADDITIONAL_CONFIG.yaml
+# macOS
+brew install ffmpeg
+brew install --cask libreoffice
+
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y ffmpeg libreoffice
 ```
 
-### Example Usage
-To use a local voice model:
+Install Python package:
+
 ```bash
-slide-to-video --model local --slide example/slide.pdf --script example/script.txt --voice example/sample.mp3 --output-dir output
+python -m venv .venv
+source .venv/bin/activate
+pip install .
 ```
-A final video will be generated in the `OUTPUT_PATH` directory as `output.mp4`.
 
-https://github.com/Changochen/slide-to-video/assets/18531282/c774367b-e585-4885-b13d-78940934a422
+For local Coqui voice cloning:
 
+```bash
+pip install ".[local]"
+```
 
-For more options, including adjusting speech speed, run:
+For development:
+
+```bash
+pip install ".[dev]"
+pytest test
+```
+
+## Secrets
+
+Never commit API keys. The repository ignores `*.key`.
+
+Supported key sources:
+
+- Environment variables:
+  - `DASHSCOPE_API_KEY`
+  - `MIMO_API_KEY`
+  - `PLAY_HT_USER_ID`
+  - `PLAY_HT_API_KEY`
+- Local ignored key files:
+  - `aliyun.key`
+  - `mimo.key`
+
+## Basic Workflow
+
+### 1. Generate An Editable Script
+
+Offline template draft:
+
+```bash
+slide-to-video \
+  --slide input/deck.pptx \
+  --output-dir output/deck \
+  --draft-only \
+  --draft-script output/deck/script.txt \
+  --language zh-cn \
+  --script-provider template
+```
+
+The generated script is plain text. Each slide section is separated by:
+
+```text
+NEWSLIDE
+```
+
+Edit `output/deck/script.txt` until the narration is right.
+
+### 2. Build A Narrated Video
+
+Alibaba Cloud Qwen-TTS:
+
+```bash
+slide-to-video \
+  --model qwen-tts \
+  --slide input/deck.pptx \
+  --script output/deck/script.txt \
+  --output-dir output/deck_qwen \
+  --language zh-cn \
+  --aliyun-api-key-file aliyun.key \
+  --voice Cherry
+```
+
+Alibaba Cloud CosyVoice:
+
+```bash
+slide-to-video \
+  --model cosyvoice \
+  --slide input/deck.pptx \
+  --script output/deck/script.txt \
+  --output-dir output/deck_cosyvoice \
+  --language zh-cn \
+  --aliyun-api-key-file aliyun.key \
+  --voice longanyang
+```
+
+Xiaomi MiMo:
+
+```bash
+slide-to-video \
+  --model mimo \
+  --slide input/deck.pptx \
+  --script output/deck/script.txt \
+  --output-dir output/deck_mimo \
+  --language zh-cn \
+  --mimo-api-key-file mimo.key
+```
+
+The final video is written to:
+
+```text
+<output-dir>/output.mp4
+```
+
+## PPT/PPTX Handling
+
+For stable rendering, place a PDF with the same basename next to the PPTX:
+
+```text
+input/deck.pptx
+input/deck.pdf
+```
+
+When both exist, the tool uses `deck.pdf` for slide rendering and `deck.pptx` for text extraction. If no sibling PDF exists, it attempts conversion through LibreOffice.
+
+## Alibaba Cloud Notes
+
+For 华北 2（北京）:
+
+- API key guide: <https://help.aliyun.com/zh/model-studio/get-api-key>
+- DashScope HTTP API base URL: `https://dashscope.aliyuncs.com/api/v1`
+- OpenAI-compatible text base URL: `https://dashscope.aliyuncs.com/compatible-mode/v1`
+
+This project uses the non-realtime TTS HTTP APIs because they fit batch video generation:
+
+- `qwen-tts`: `/services/aigc/multimodal-generation/generation`
+- `cosyvoice`: `/services/audio/tts/SpeechSynthesizer`
+
+The Alibaba Cloud engines run TTS sequentially to avoid API rate-limit errors during multi-slide generation.
+
+## Common Commands
+
+List all options:
+
 ```bash
 slide-to-video --help
 ```
 
-**Currently Supported Model**:
-1. [TTS](https://github.com/coqui-ai/TTS)
-2. [play.ht](https://play.ht/)
+Smoke-test the video pipeline without API keys:
 
-**Currently Supported Languages**:
-'en', 'es', 'fr', 'de', 'it', 'pt', 'pl', 'tr', 'ru', 'nl', 'cs', 'ar', 'zh-cn', 'hu', 'ko', 'ja', 'hi'
+```bash
+slide-to-video \
+  --model mock \
+  --slide example/slide.pdf \
+  --script example/script.txt \
+  --output-dir output-smoke
+```
 
-## Cached Regeneration
-After generating the video, the output directory will contain a `project.yaml` file, which helps skip the generation of unchanged content. If inputs remain the same, the tool skips the video generation process.
+Run tests:
 
-### To Force Regeneration
-If you modify the slide, script, or settings (like speech speed), the tool regenerates the affected content. To force regeneration of specific parts, set the `force_reset` field of the corresponding item in `project.yaml` in the output directory.
+```bash
+pytest test
+```
 
-### Support a new voice model
-To support a new voice model, you need to implement a new class in `src/slide_to_video/tts_engine` and register the class by calling `register_engine` (See an example at [here]([src/slide_to_video/tts_engine/local.py)).
+## Project Structure
 
-## Notes
-1. On the first run, you might see the following prompt:
-    ```
-    > You must confirm the following:
-    | > "I have purchased a commercial license from Coqui: licensing@coqui.ai"
-    | > "Otherwise, I agree to the terms of the non-commercial CPML: https://coqui.ai/cpml" - [y/n]
-    | | > 
-    ```
-    Simply enter `y`.
+```text
+src/slide_to_video/
+  aliyun.py                 # DashScope HTTP client
+  mimo.py                   # MiMo OpenAI-compatible client
+  narration.py              # PPT/PDF text extraction and script drafting
+  project.py                # caching and orchestration
+  script_engine.py          # NEWSLIDE script splitting
+  slide_engine.py           # PDF/PPTX rendering
+  video_engine.py           # ffmpeg video assembly
+  tts_engine/               # pluggable TTS engines
+```
+
+## Acknodeglement
+
+Thanks the codebase from [slide-to-video](https://github.com/llm-believer/slide-to-video). I use codex to reconstruct it and add new features. 

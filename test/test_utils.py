@@ -1,6 +1,4 @@
 import pytest
-import os
-import tempfile
 from unittest.mock import Mock, patch
 from src.slide_to_video.utils import (
     par_execute,

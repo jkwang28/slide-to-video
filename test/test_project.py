@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from src.slide_to_video.project import TargetVoice, ItemType, Item, Task
 from src.slide_to_video.tts_engine import TTSEngine
 

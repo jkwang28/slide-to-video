@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from src.slide_to_video.slide_engine import SlideEngine
 
 
@@ -76,6 +76,26 @@ def test_slide_to_images_calls_pdf_to_images(slide_engine):
 
         mock_pdf.assert_called_once_with("test.pdf", "output_dir")
         assert result == ["image1.png"]
+
+
+def test_ensure_pdf_accepts_pdf(slide_engine):
+    assert slide_engine.ensure_pdf("slides.pdf", "output") == "slides.pdf"
+
+
+def test_ensure_pdf_uses_sibling_pdf_for_pptx(slide_engine, tmp_path):
+    pptx_path = tmp_path / "slides.pptx"
+    pdf_path = tmp_path / "slides.pdf"
+    pptx_path.write_text("not a real pptx")
+    pdf_path.write_text("not a real pdf")
+
+    assert slide_engine.ensure_pdf(str(pptx_path), str(tmp_path / "output")) == str(
+        pdf_path
+    )
+
+
+def test_ensure_pdf_rejects_unsupported_format(slide_engine):
+    with pytest.raises(ValueError, match="Unsupported slide format"):
+        slide_engine.ensure_pdf("slides.key", "output")
 
 
 @patch("src.slide_to_video.slide_engine.fitz")

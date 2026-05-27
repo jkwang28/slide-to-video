@@ -25,10 +25,8 @@ env/
 .vscode/
 
 # Secrets and local credentials
-.env
-.env.*
-!.env.example
 *.key
+!.key.example
 config.yaml
 config.local.yaml
 config2.yaml

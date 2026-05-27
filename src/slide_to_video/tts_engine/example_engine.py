@@ -15,8 +15,6 @@ This engine won't work without OpenAI API credentials - it's for demonstration o
 """
 
 import requests
-import json
-from typing import Set
 from .base_engine import TTSEngine
 from .registery import register_engine
 

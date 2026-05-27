@@ -1,4 +1,3 @@
-import pytest
 from src.slide_to_video import hello
 
 

@@ -1,7 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch
-from src.slide_to_video.tts_engine import create_engine, get_all_engine_names, TTSEngine
-from src.slide_to_video.tts_engine.registery import register_engine
+from src.slide_to_video.tts_engine import create_engine, get_all_engine_names
 from src.slide_to_video.tts_engine.local import LocalTTSEngine
 from src.slide_to_video.tts_engine.playht import PlayHTEngine
 
@@ -28,6 +26,8 @@ def test_get_all_engine_names_includes_defaults():
     names = get_all_engine_names()
     assert "local" in names
     assert "playht" in names
+    assert "qwen-tts" in names
+    assert "cosyvoice" in names
 
 
 def test_create_local_engine():
