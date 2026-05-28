@@ -6,6 +6,18 @@ This guide explains how to create new Text-to-Speech engines for the slide-to-vi
 
 The TTS engine system is designed to be easily extensible. Each engine is a Python class that inherits from `TTSEngine` and implements a few required methods. The system handles registration, configuration validation, testing, and integration automatically.
 
+## Built-In Engines
+
+Current built-in engine names:
+
+- `qwen-tts`: Alibaba Cloud DashScope Qwen-TTS.
+- `cosyvoice`: Alibaba Cloud DashScope CosyVoice.
+- `minimax`: Alibaba Cloud DashScope MiniMax synchronous speech synthesis.
+- `mimo`: Xiaomi MiMo TTS.
+- `playht`: Play.ht.
+- `local`: local Coqui XTTS.
+- `mock`: silent audio for tests and pipeline smoke runs.
+
 ## Quick Start
 
 ### 1. Create Your Engine Class

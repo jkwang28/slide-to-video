@@ -46,4 +46,5 @@ If a key is ever committed or shared by mistake, revoke it immediately in the pr
 Provider docs:
 
 - Alibaba Cloud Model Studio API keys: <https://help.aliyun.com/zh/model-studio/get-api-key>
+- Alibaba Cloud MiniMax speech synthesis: <https://help.aliyun.com/zh/model-studio/minimax-synchronous-speech-synthesis-api>
 - Xiaomi MiMo tools overview: <https://platform.xiaomimimo.com/docs/zh-CN/integration/tools-overview>

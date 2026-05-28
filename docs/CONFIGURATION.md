@@ -65,7 +65,34 @@ aliyun_cosyvoice_voice: longanyang
 aliyun_sample_rate: 24000
 ```
 
-For both engines, `--voice` is accepted as a shorthand when no engine-specific voice option is set.
+### MiniMax
+
+```yaml
+model: minimax
+aliyun_minimax_model: MiniMax/speech-2.8-hd
+aliyun_minimax_voice: male-qn-qingse
+aliyun_minimax_sample_rate: 32000
+aliyun_minimax_language_boost: Chinese
+aliyun_minimax_output_format: url
+```
+
+Optional MiniMax fields:
+
+```yaml
+aliyun_minimax_emotion: calm
+aliyun_minimax_volume: 1.0
+aliyun_minimax_pitch: 0
+aliyun_minimax_bitrate: 128000
+aliyun_minimax_channel: 1
+aliyun_minimax_text_normalization: true
+aliyun_minimax_aigc_watermark: false
+```
+
+MiniMax supports `wav`, `mp3`, and `flac` synthesis formats in non-streaming mode. The batch video pipeline writes `.wav` files by default.
+
+Use `aliyun_minimax_output_format: url` for long narration. `hex` is supported for short clips, but large inline audio responses can exceed DashScope response-size limits.
+
+For these engines, `--voice` is accepted as a shorthand when no engine-specific voice option is set.
 
 ## Xiaomi MiMo
 

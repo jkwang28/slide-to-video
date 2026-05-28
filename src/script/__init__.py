@@ -14,7 +14,7 @@ app = typer.Typer()
 def generate(
     model: Optional[str] = typer.Option(
         None,
-        help="TTS engine to use, such as qwen-tts, cosyvoice, mimo, playht, local, or mock.",
+        help="TTS engine to use, such as qwen-tts, cosyvoice, minimax, mimo, playht, local, or mock.",
         case_sensitive=False,
         click_type=click.Choice(get_all_engine_names()),
     ),
@@ -122,9 +122,13 @@ def generate(
         None,
         help="Aliyun CosyVoice model. Default: cosyvoice-v3-flash.",
     ),
+    aliyun_minimax_model: Optional[str] = typer.Option(
+        None,
+        help="Aliyun MiniMax model. Default: MiniMax/speech-2.8-hd.",
+    ),
     aliyun_voice: Optional[str] = typer.Option(
         None,
-        help="Aliyun voice name shared by qwen-tts/cosyvoice unless engine-specific voice is set.",
+        help="Aliyun voice name shared by qwen-tts/cosyvoice/minimax unless engine-specific voice is set.",
     ),
     aliyun_qwen_voice: Optional[str] = typer.Option(
         None,
@@ -134,9 +138,21 @@ def generate(
         None,
         help="Aliyun CosyVoice voice. Default: longanyang.",
     ),
+    aliyun_minimax_voice: Optional[str] = typer.Option(
+        None,
+        help="Aliyun MiniMax voice ID. Default: male-qn-qingse.",
+    ),
+    aliyun_minimax_emotion: Optional[str] = typer.Option(
+        None,
+        help="Aliyun MiniMax emotion, such as happy, sad, angry, surprised, calm.",
+    ),
     aliyun_language_type: Optional[str] = typer.Option(
         None,
         help="Aliyun Qwen-TTS language_type, such as Chinese or English.",
+    ),
+    aliyun_minimax_language_boost: Optional[str] = typer.Option(
+        None,
+        help="Aliyun MiniMax language_boost, such as Chinese, English, or auto.",
     ),
     aliyun_tts_instruction: Optional[str] = typer.Option(
         None,
@@ -149,6 +165,16 @@ def generate(
     aliyun_sample_rate: Optional[int] = typer.Option(
         None,
         help="Aliyun CosyVoice sample rate. Default: 24000.",
+    ),
+    aliyun_minimax_sample_rate: Optional[int] = typer.Option(
+        None,
+        help="Aliyun MiniMax sample rate. Default: 32000.",
+    ),
+    aliyun_minimax_output_format: Optional[str] = typer.Option(
+        None,
+        case_sensitive=False,
+        click_type=click.Choice(["url", "hex"]),
+        help="Aliyun MiniMax response format. Default: url.",
     ),
     ctx: typer.Context = typer.Option(None),
 ):

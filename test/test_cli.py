@@ -99,6 +99,52 @@ def test_generate_with_all_parameters(mock_project_config, mock_slide_to_video):
 
 @patch("src.script.slide_to_video")
 @patch("src.script.ProjectConfig")
+def test_generate_with_minimax_options(mock_project_config, mock_slide_to_video):
+    mock_config_instance = Mock()
+    mock_project_config.return_value = mock_config_instance
+
+    result = runner.invoke(
+        app,
+        [
+            "--model",
+            "minimax",
+            "--slide",
+            "presentation.pdf",
+            "--script",
+            "script.txt",
+            "--output-dir",
+            "/custom/output",
+            "--language",
+            "zh-cn",
+            "--aliyun-minimax-model",
+            "MiniMax/speech-2.8-hd",
+            "--aliyun-minimax-voice",
+            "male-qn-qingse",
+            "--aliyun-minimax-emotion",
+            "calm",
+            "--aliyun-minimax-language-boost",
+            "Chinese",
+            "--aliyun-minimax-sample-rate",
+            "32000",
+            "--aliyun-minimax-output-format",
+            "url",
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    config_args = mock_project_config.call_args[0][0]
+    assert config_args["model"] == "minimax"
+    assert config_args["aliyun_minimax_model"] == "MiniMax/speech-2.8-hd"
+    assert config_args["aliyun_minimax_voice"] == "male-qn-qingse"
+    assert config_args["aliyun_minimax_emotion"] == "calm"
+    assert config_args["aliyun_minimax_language_boost"] == "Chinese"
+    assert config_args["aliyun_minimax_sample_rate"] == 32000
+    assert config_args["aliyun_minimax_output_format"] == "url"
+
+
+@patch("src.script.slide_to_video")
+@patch("src.script.ProjectConfig")
 @patch("builtins.open")
 @patch("src.script.yaml.safe_load")
 def test_generate_with_config_file(

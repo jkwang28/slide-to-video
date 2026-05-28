@@ -28,6 +28,7 @@ def test_get_all_engine_names_includes_defaults():
     assert "playht" in names
     assert "qwen-tts" in names
     assert "cosyvoice" in names
+    assert "minimax" in names
 
 
 def test_create_local_engine():

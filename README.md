@@ -11,6 +11,7 @@ Convert a PDF/PPTX slide deck into a narrated video. The workflow is designed ar
 - TTS engines:
   - `qwen-tts`: Alibaba Cloud DashScope Qwen-TTS.
   - `cosyvoice`: Alibaba Cloud DashScope CosyVoice.
+  - `minimax`: Alibaba Cloud DashScope MiniMax speech synthesis.
   - `mimo`: Xiaomi MiMo TTS.
   - `playht`: Play.ht.
   - `local`: optional Coqui XTTS voice cloning.
@@ -122,6 +123,22 @@ slide-to-video \
   --voice longanyang
 ```
 
+Alibaba Cloud MiniMax:
+
+```bash
+slide-to-video \
+  --model minimax \
+  --slide input/deck.pptx \
+  --script output/deck/script.txt \
+  --output-dir output/deck_minimax \
+  --language zh-cn \
+  --aliyun-api-key-file aliyun.key \
+  --aliyun-minimax-model MiniMax/speech-2.8-hd \
+  --voice male-qn-qingse \
+  --aliyun-minimax-language-boost Chinese \
+  --aliyun-minimax-output-format url
+```
+
 Xiaomi MiMo:
 
 ```bash
@@ -156,6 +173,7 @@ When both exist, the tool uses `deck.pdf` for slide rendering and `deck.pptx` fo
 For 华北 2（北京）:
 
 - API key guide: <https://help.aliyun.com/zh/model-studio/get-api-key>
+- MiniMax synchronous speech synthesis API: <https://help.aliyun.com/zh/model-studio/minimax-synchronous-speech-synthesis-api>
 - DashScope HTTP API base URL: `https://dashscope.aliyuncs.com/api/v1`
 - OpenAI-compatible text base URL: `https://dashscope.aliyuncs.com/compatible-mode/v1`
 
@@ -163,6 +181,7 @@ This project uses the non-realtime TTS HTTP APIs because they fit batch video ge
 
 - `qwen-tts`: `/services/aigc/multimodal-generation/generation`
 - `cosyvoice`: `/services/audio/tts/SpeechSynthesizer`
+- `minimax`: `/services/aigc/multimodal-generation/generation`
 
 The Alibaba Cloud engines run TTS sequentially to avoid API rate-limit errors during multi-slide generation.
 
