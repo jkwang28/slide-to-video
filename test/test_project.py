@@ -275,3 +275,40 @@ def test_task_init_with_lock():
     )
 
     assert task.lock == lock
+
+
+@patch("src.slide_to_video.project.VideoEngine")
+def test_task_build_tts_only_stops_before_video(mock_video_engine_class, tmp_path):
+    script_path = tmp_path / "script.txt"
+    script_path.write_text("Narration text")
+    slide_path = tmp_path / "slide.png"
+    slide_path.write_bytes(b"slide")
+
+    slide_item = Item(path=str(slide_path), type=ItemType.SLIDE, md5sum="slide_hash")
+    slide_item.cache()
+    script_item = Item(
+        path=str(script_path), type=ItemType.SCRIPT, md5sum="script_hash"
+    )
+    tts_engine = Mock()
+
+    task = Task(
+        id=2,
+        slide=slide_item,
+        script=script_item,
+        output_dir=str(tmp_path),
+        tts_engine=tts_engine,
+        delay=1.0,
+    )
+
+    rebuilt = task.build(tts_only=True)
+
+    assert rebuilt is True
+    assert script_item.cached is True
+    assert slide_item.cached is False
+    tts_engine.synthesize.assert_called_once_with(
+        "Narration text", f"{tmp_path}/sub_paragraph_2.wav"
+    )
+    mock_video_engine = mock_video_engine_class.return_value
+    assert mock_video_engine.add_silence.call_count == 2
+    mock_video_engine.generate_video_from_image.assert_not_called()
+    mock_video_engine.add_audio_to_video.assert_not_called()

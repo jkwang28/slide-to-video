@@ -33,11 +33,13 @@ def slide_to_video(
                 replace_dict[original_text.strip()] = new_text.strip()
         project_config["script_dict"] = replace_dict
 
+    tts_only = bool(project_config.pop("tts_only", False))
+
     project = Project(
         name="project",
         config=project_config,
     )
-    project.build()
+    project.build(tts_only=tts_only)
     project.save()
 
 

@@ -23,7 +23,7 @@ def test_slide_to_video_basic(mock_exists, mock_makedirs, mock_project_class):
 
     # Verify project creation and execution
     mock_project_class.assert_called_once_with(name="project", config=project_config)
-    mock_project.build.assert_called_once()
+    mock_project.build.assert_called_once_with(tts_only=False)
     mock_project.save.assert_called_once()
 
 
@@ -58,7 +58,7 @@ def test_slide_to_video_existing_dir_no_project_file(
     mock_makedirs.assert_called_once_with("/output", exist_ok=True)
 
     # Verify project execution
-    mock_project.build.assert_called_once()
+    mock_project.build.assert_called_once_with(tts_only=False)
     mock_project.save.assert_called_once()
 
 
@@ -93,8 +93,28 @@ def test_slide_to_video_existing_dir_with_project_file(
     mock_makedirs.assert_called_once_with("/output", exist_ok=True)
 
     # Verify project execution
-    mock_project.build.assert_called_once()
+    mock_project.build.assert_called_once_with(tts_only=False)
     mock_project.save.assert_called_once()
+
+
+@patch("src.slide_to_video.lib.Project")
+@patch("src.slide_to_video.lib.os.makedirs")
+@patch("src.slide_to_video.lib.os.path.exists")
+def test_slide_to_video_tts_only(mock_exists, mock_makedirs, mock_project_class):
+    from src.slide_to_video.lib import slide_to_video
+
+    mock_project = Mock()
+    mock_project_class.return_value = mock_project
+    mock_exists.return_value = False
+
+    project_config = {"output_dir": "/output", "tts_only": True}
+
+    slide_to_video(project_config=project_config)
+
+    mock_project_class.assert_called_once_with(name="project", config=project_config)
+    mock_project.build.assert_called_once_with(tts_only=True)
+    mock_project.save.assert_called_once()
+    assert "tts_only" not in project_config
 
 
 @patch("src.slide_to_video.lib.Project")

@@ -99,6 +99,34 @@ def test_generate_with_all_parameters(mock_project_config, mock_slide_to_video):
 
 @patch("src.script.slide_to_video")
 @patch("src.script.ProjectConfig")
+def test_generate_with_tts_only(mock_project_config, mock_slide_to_video):
+    mock_config_instance = Mock()
+    mock_project_config.return_value = mock_config_instance
+
+    result = runner.invoke(
+        app,
+        [
+            "--model",
+            "qwen-tts",
+            "--slide",
+            "presentation.pdf",
+            "--script",
+            "script.txt",
+            "--output-dir",
+            "/custom/output",
+            "--tts-only",
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    config_args = mock_project_config.call_args[0][0]
+    assert config_args["tts_only"] is True
+    mock_slide_to_video.assert_called_once_with(project_config=mock_config_instance)
+
+
+@patch("src.script.slide_to_video")
+@patch("src.script.ProjectConfig")
 def test_generate_with_minimax_options(mock_project_config, mock_slide_to_video):
     mock_config_instance = Mock()
     mock_project_config.return_value = mock_config_instance

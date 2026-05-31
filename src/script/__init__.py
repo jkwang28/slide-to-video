@@ -72,6 +72,10 @@ def generate(
         False,
         help="Generate the editable narration script and stop before TTS/video.",
     ),
+    tts_only: bool = typer.Option(
+        False,
+        help="Generate per-slide TTS audio and stop before video assembly.",
+    ),
     regenerate_draft: bool = typer.Option(
         False,
         help="Overwrite an existing generated narration script.",

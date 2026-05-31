@@ -100,14 +100,15 @@ class Task(object):
         self.lock = lock
         self.delay = delay
 
-    def build(self):
+    def build(self, *, tts_only: bool = False):
         video_file = f"{self.output_dir}/sub_paragraph_without_sound_{self.id}.mp4"
         audio_file = f"{self.output_dir}/sub_paragraph_{self.id}.wav"
         final_video_file = f"{self.output_dir}/sub_paragraph_{self.id}.mp4"
 
-        if self.script.cached and self.slide.cached:
-            return
+        if self.script.cached and (self.slide.cached or tts_only):
+            return False
 
+        needs_audio = not self.script.cached
         if not self.script.cached:
             if self.lock:
                 self.lock.acquire()
@@ -116,21 +117,27 @@ class Task(object):
             finally:
                 if self.lock:
                     self.lock.release()
+            self.script.cache()
+            self.slide.reset()
+
         video_engine = VideoEngine()
-        if self.id != 1:
-            video_engine.add_silence(audio_file, self.delay / 2, direction="start")
-        end_delay = self.delay / 2
-        if self.script.extra:
-            end_delay = self.script.extra.get("delay", end_delay)
-        video_engine.add_silence(audio_file, end_delay, direction="end")
+        if needs_audio:
+            if self.id != 1:
+                video_engine.add_silence(audio_file, self.delay / 2, direction="start")
+            end_delay = self.delay / 2
+            if self.script.extra:
+                end_delay = self.script.extra.get("delay", end_delay)
+            video_engine.add_silence(audio_file, end_delay, direction="end")
+
+        if tts_only:
+            return needs_audio
 
         duration = get_audio_duration(audio_file)
 
-        if not self.slide.cached or self.script.cached:
-            video_engine.generate_video_from_image(
-                self.slide.path, video_file, duration
-            )
-            video_engine.add_audio_to_video(video_file, audio_file, final_video_file)
+        video_engine.generate_video_from_image(self.slide.path, video_file, duration)
+        video_engine.add_audio_to_video(video_file, audio_file, final_video_file)
+        self.slide.cache()
+        return True
 
 
 class ProjectConfig(dict):
@@ -304,7 +311,7 @@ class Project:
             return [item.content for item in self.script_items if not item.cached]
         return [item.content for item in self.script_items]
 
-    def build(self):
+    def build(self, *, tts_only: bool = False):
         model = self.config.get("model")
         assert model
         tts_engine = create_engine(model, self.config)
@@ -326,15 +333,18 @@ class Project:
                     delay=self.config["delay"],
                 )
                 tasks.append(task)
-                futures.append(executor.submit(task.build))
+                futures.append(executor.submit(task.build, tts_only=tts_only))
 
-        for future in futures:
-            future.result()
+        rebuilt = [future.result() for future in futures]
 
-        cached_script_list = [item.cached for item in self.script_items]
-        cached_slide_list = [item.cached for item in self.slide_items]
+        if tts_only:
+            if any(rebuilt):
+                print("TTS audio is ready. Skipping video assembly.")
+            else:
+                print("All TTS audio is cached. No need to call TTS.")
+            return
 
-        if not all(cached_script_list) or not all(cached_slide_list):
+        if any(rebuilt):
             video_engine = VideoEngine()
             video_paths = [
                 f"{self.output_dir}/sub_paragraph_{i + 1}.mp4"
